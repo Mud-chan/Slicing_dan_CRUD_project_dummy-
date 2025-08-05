@@ -9,33 +9,22 @@ class ProductController extends Controller
 {
     public function __construct()
     {
-        // Semua route butuh login
         $this->middleware('auth');
     }
 
-    /**
-     * Menampilkan daftar produk
-     */
     public function index()
     {
         $products = Product::latest()->paginate(5);
         return view('products.index', compact('products'));
     }
 
-    /**
-     * Menampilkan form tambah produk
-     */
     public function create()
     {
         return view('products.create');
     }
 
-    /**
-     * Menyimpan produk baru
-     */
     public function store(Request $request)
     {
-        // Validasi input
         $request->validate([
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -45,7 +34,6 @@ class ProductController extends Controller
 
         $data = $request->only(['name', 'description', 'price']);
 
-        // Upload gambar jika ada
         if ($request->hasFile('image')) {
             $filename = time() . '.' . $request->image->extension();
             $request->image->move(public_path('uploads'), $filename);
@@ -58,20 +46,13 @@ class ProductController extends Controller
                          ->with('success', 'Produk berhasil ditambahkan.');
     }
 
-    /**
-     * Menampilkan form edit produk
-     */
     public function edit(Product $product)
     {
         return view('products.edit', compact('product'));
     }
 
-    /**
-     * Mengupdate data produk
-     */
     public function update(Request $request, Product $product)
     {
-        // Validasi input
         $request->validate([
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -81,9 +62,7 @@ class ProductController extends Controller
 
         $data = $request->only(['name', 'description', 'price']);
 
-        // Upload gambar baru jika ada
         if ($request->hasFile('image')) {
-            // Hapus gambar lama jika ada
             if ($product->image && file_exists(public_path('uploads/' . $product->image))) {
                 unlink(public_path('uploads/' . $product->image));
             }
@@ -99,12 +78,8 @@ class ProductController extends Controller
                          ->with('success', 'Produk berhasil diperbarui.');
     }
 
-    /**
-     * Menghapus produk
-     */
     public function destroy(Product $product)
     {
-        // Hapus gambar jika ada
         if ($product->image && file_exists(public_path('uploads/' . $product->image))) {
             unlink(public_path('uploads/' . $product->image));
         }
