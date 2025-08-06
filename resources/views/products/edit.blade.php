@@ -2,6 +2,13 @@
 
 @section('content')
     <style>
+        body {
+            background: linear-gradient(135deg, #f0f8ff, #e6f0ff);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: url(../image/bgbg.jpg);
+        }
         .card-custom {
             background: white;
             border-radius: 10px;
@@ -9,6 +16,7 @@
             box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
             max-width: 600px;
             margin: auto;
+            background-image: url(../image/bgbg.jpg);
         }
 
         .btn-custom {
