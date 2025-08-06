@@ -1,129 +1,136 @@
 @extends('layouts.app')
 
 @section('content')
-    <style>
-        body {
-            background: linear-gradient(135deg, #f0f8ff, #e6f0ff);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background-image: url(../image/bgbg.jpg);
-        }
+<style>
+    body {
+        background-image: url(../image/bgbg.jpg);
+        background-size: cover;
+        background-position: center;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
 
-        main {
-            flex: 1;
-        }
+    main {
+        flex: 1;
+    }
 
-        .card-custom {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
+    .product-card {
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: 0.3s;
+        background: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
 
-        .table thead {
-            background-color: #da8c55;
-            color: white;
-        }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
 
-        .btn-action {
-            margin-right: 5px;
-        }
+    .product-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background-color: #f8f8f8;
+    }
 
-        .btn-custom {
-            background-color: #da8c55;
-            color: white;
-            border: none;
-        }
+    .product-body {
+        padding: 15px;
+    }
 
-        .btn-custom:hover {
-            background-color: #b97744;
-            /* warna lebih gelap saat hover */
-            color: white;
-        }
+    .product-name {
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
 
-        /* Footer */
-        footer {
-            background-color: #da8c55;
-            color: white;
-            padding: 15px 0;
-            text-align: center;
-            font-size: 14px;
-            margin-top: auto;
-        }
-    </style>
+    .product-price {
+        color: #da8c55;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
 
-    <main>
-        <div class="card-custom">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="mb-0">Daftar Produk</h2>
-                <a href="{{ route('products.create') }}" class="btn btn-custom">
-                    <i class="bi bi-plus-circle"></i> Tambah Produk
-                </a>
+    .btn-custom {
+        background-color: #da8c55;
+        color: white;
+        border: none;
+    }
+
+    .btn-custom:hover {
+        background-color: #b97744;
+        color: white;
+    }
+
+    footer {
+        background-color: #da8c55;
+        color: white;
+        padding: 15px 0;
+        text-align: center;
+        font-size: 14px;
+        margin-top: auto;
+    }
+
+    .pagination {
+        justify-content: center;
+    }
+</style>
+
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-white">Daftar Produk</h2>
+        <a href="{{ route('products.create') }}" class="btn btn-custom">
+            <i class="bi bi-plus-circle"></i> Tambah Produk
+        </a>
+    </div>
+
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    <div class="row g-4">
+        @forelse($products as $product)
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="product-card">
+                    @if ($product->image)
+                        <img src="{{ asset('uploads/' . $product->image) }}" alt="{{ $product->name }}" class="product-image">
+                    @else
+                        <img src="https://via.placeholder.com/300x200?text=No+Image" alt="No Image" class="product-image">
+                    @endif
+
+                    <div class="product-body">
+                        <div class="product-name">{{ $product->name }}</div>
+                        <div class="text-muted small mb-2">{{ $product->description }}</div>
+                        <div class="product-price mb-3">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ route('products.edit', $product) }}" class="btn btn-warning btn-sm">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline;">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus produk ini?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
+        @empty
+            <p class="text-white">Belum ada produk.</p>
+        @endforelse
+    </div>
 
-            @if (session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
+    <div class="mt-4 d-flex justify-content-center align-items-center pb-5">
+        {{ $products->links() }}
+    </div>
+</main>
 
-            <div class="table-responsive">
-                <table class="table table-bordered align-middle">
-                    <thead>
-                        <tr>
-                            <th>Gambar</th>
-                            <th>Nama</th>
-                            <th>Deskripsi</th>
-                            <th>Harga</th>
-                            <th width="180px">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($products as $product)
-                            <tr>
-                                <td>
-                                    @if ($product->image)
-                                        <img src="{{ asset('uploads/' . $product->image) }}" alt="{{ $product->name }}"
-                                            width="60">
-                                    @else
-                                        <span class="text-muted">Tidak ada gambar</span>
-                                    @endif
-                                </td>
-                                <td>{{ $product->name }}</td>
-                                <td>{{ $product->description }}</td>
-                                <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
-                                <td>
-                                    <a href="{{ route('products.edit', $product) }}"
-                                        class="btn btn-warning btn-sm btn-action">
-                                        <i class="bi bi-pencil-square"></i> Edit
-                                    </a>
-                                    <form action="{{ route('products.destroy', $product) }}" method="POST"
-                                        style="display:inline;">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm"
-                                            onclick="return confirm('Yakin hapus produk ini?')">
-                                            <i class="bi bi-trash"></i> Hapus
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" class="text-center">Belum ada produk.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+<footer>
+    &copy; {{ date('Y') }} Figure Shop. All rights reserved. | Built with Laravel & Bootstrap
+</footer>
 
-            <!-- Pagination -->
-            <div class="mt-3">
-                {{ $products->links() }}
-            </div>
-        </div>
-    </main>
-
-    <footer>
-        &copy; {{ date('Y') }} Figure Shop. All rights reserved. | Built with Laravel & Bootstrap
-    </footer>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 @endsection
